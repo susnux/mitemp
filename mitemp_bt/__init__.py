@@ -3,6 +3,7 @@ Read data from Mi Temp environmental (Temp and humidity) sensor.
 """
 
 from datetime import datetime, timedelta
+from enum import Enum
 import logging
 from threading import Lock
 from btlewrap.base import BluetoothInterface, BluetoothBackendException
@@ -13,9 +14,15 @@ _HANDLE_READ_NAME = 0x03
 _HANDLE_READ_WRITE_SENSOR_DATA = 0x0010
 
 
-MI_TEMPERATURE = "temperature"
-MI_HUMIDITY = "humidity"
-MI_BATTERY = "battery"
+class MiTempParameter(Enum):
+    """
+    Queryable parameters of the Mijia temperature sensor
+    """
+
+    TEMPERATURE = "temperature"
+    HUMIDITY = "humidity"
+    BATTERY = "battery"
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -108,7 +115,7 @@ class MiTempBtPoller:
                 self.battery = int(ord(res_battery))
         return self._firmware_version
 
-    def parameter_value(self, parameter, read_cached=True):
+    def parameter_value(self, parameter: MiTempParameter, read_cached=True):
         """Return a value of one of the monitored paramaters.
 
         This method will try to retrieve the data from cache and only
@@ -117,7 +124,7 @@ class MiTempBtPoller:
         This behaviour can be overwritten by the "read_cached" parameter.
         """
         # Special handling for battery attribute
-        if parameter == MI_BATTERY:
+        if parameter == MiTempParameter.MI_BATTERY:
             return self.battery_level()
 
         # Use the lock to make sure the cache isn't updated multiple times
@@ -144,10 +151,13 @@ class MiTempBtPoller:
             return
 
         parsed = self._parse_data()
-        _LOGGER.debug('Received new data from sensor: Temp=%.1f, Humidity=%.1f',
-                      parsed[MI_TEMPERATURE], parsed[MI_HUMIDITY])
+        _LOGGER.debug(
+            "Received new data from sensor: Temp=%.1f, Humidity=%.1f",
+            parsed[MiTempParameter.TEMPERATURE],
+            parsed[MiTempParameter.HUMIDITY],
+        )
 
-        if parsed[MI_HUMIDITY] > 100:  # humidity over 100 procent
+        if parsed[MiTempParameter.HUMIDITY] > 100:  # humidity over 100 procent
             self.clear_cache()
             return
 
@@ -180,7 +190,9 @@ class MiTempBtPoller:
         for dataitem in data.split(" "):
             dataparts = dataitem.split("=")
             if dataparts[0] == "T":
+                res[MiTempParameter.TEMPERATURE] = float(dataparts[1])
             elif dataparts[0] == "H":
+                res[MiTempParameter.HUMIDITY] = float(dataparts[1])
         return res
 
     @staticmethod
