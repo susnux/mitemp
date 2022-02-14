@@ -21,11 +21,11 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class MiTempBtPoller:
-    """"
+    """
     A class to read data from Mi Temp plant sensors.
     """
 
-    def __init__(self, mac, backend, cache_timeout=600, retries=3, adapter='hci0'):
+    def __init__(self, mac, backend, cache_timeout=600, retries=3, adapter="hci0"):
         """
         Initialize a Mi Temp Poller for the given MAC address.
         """
@@ -48,29 +48,30 @@ class MiTempBtPoller:
             name = connection.read_handle(_HANDLE_READ_NAME)  # pylint: disable=no-member
 
         if not name:
-            raise BluetoothBackendException("Could not read NAME using handle %s"
-                                            " from Mi Temp sensor %s" % (hex(_HANDLE_READ_NAME), self._mac))
-        return ''.join(chr(n) for n in name)
+            raise BluetoothBackendException(
+                "Could not read NAME using handle %s"
+                " from Mi Temp sensor %s" % (hex(_HANDLE_READ_NAME), self._mac)
+            )
+        return "".join(chr(n) for n in name)
 
     def fill_cache(self):
         """Fill the cache with new data from the sensor."""
-        _LOGGER.debug('Filling cache with new sensor data.')
+        _LOGGER.debug("Filling cache with new sensor data.")
         try:
             self.firmware_version()
         except BluetoothBackendException:
             # If a sensor doesn't work, wait 5 minutes before retrying
-            self._last_read = datetime.now() - self._cache_timeout + \
-                timedelta(seconds=300)
+            self._last_read = datetime.now() - self._cache_timeout + timedelta(seconds=300)
             raise
 
         with self._bt_interface.connect(self._mac) as connection:
             try:
-                connection.wait_for_notification(_HANDLE_READ_WRITE_SENSOR_DATA, self,
-                                                 self.ble_timeout)  # pylint: disable=no-member
+                connection.wait_for_notification(
+                    _HANDLE_READ_WRITE_SENSOR_DATA, self, self.ble_timeout
+                )  # pylint: disable=no-member
                 # If a sensor doesn't work, wait 5 minutes before retrying
             except BluetoothBackendException:
-                self._last_read = datetime.now() - self._cache_timeout + \
-                    timedelta(seconds=300)
+                self._last_read = datetime.now() - self._cache_timeout + timedelta(seconds=300)
                 return
 
     def battery_level(self):
@@ -84,16 +85,17 @@ class MiTempBtPoller:
 
     def firmware_version(self):
         """Return the firmware version."""
-        if (self._firmware_version is None) or \
-                (datetime.now() - timedelta(hours=24) > self._fw_last_read):
+        if (self._firmware_version is None) or (datetime.now() - timedelta(hours=24) > self._fw_last_read):
             self._fw_last_read = datetime.now()
             with self._bt_interface.connect(self._mac) as connection:
-                res_firmware = connection.read_handle(_HANDLE_READ_FIRMWARE_VERSION)  # pylint: disable=no-member
-                _LOGGER.debug('Received result for handle %s: %s',
-                              _HANDLE_READ_FIRMWARE_VERSION, res_firmware)
+                res_firmware = connection.read_handle(
+                    _HANDLE_READ_FIRMWARE_VERSION
+                )  # pylint: disable=no-member
+                _LOGGER.debug(
+                    "Received result for handle %s: %s", _HANDLE_READ_FIRMWARE_VERSION, res_firmware
+                )
                 res_battery = connection.read_handle(_HANDLE_READ_BATTERY_LEVEL)  # pylint: disable=no-member
-                _LOGGER.debug('Received result for handle %s: %s',
-                              _HANDLE_READ_BATTERY_LEVEL, res_battery)
+                _LOGGER.debug("Received result for handle %s: %s", _HANDLE_READ_BATTERY_LEVEL, res_battery)
 
             if res_firmware is None:
                 self._firmware_version = None
@@ -120,14 +122,14 @@ class MiTempBtPoller:
 
         # Use the lock to make sure the cache isn't updated multiple times
         with self.lock:
-            if (read_cached is False) or \
-                    (self._last_read is None) or \
-                    (datetime.now() - self._cache_timeout > self._last_read):
+            if (
+                (read_cached is False)
+                or (self._last_read is None)
+                or (datetime.now() - self._cache_timeout > self._last_read)
+            ):
                 self.fill_cache()
             else:
-                _LOGGER.debug("Using cache (%s < %s)",
-                              datetime.now() - self._last_read,
-                              self._cache_timeout)
+                _LOGGER.debug("Using cache (%s < %s)", datetime.now() - self._last_read, self._cache_timeout)
 
         if self.cache_available():
             return self._parse_data()[parameter]
@@ -171,36 +173,32 @@ class MiTempBtPoller:
         """
         data = self._cache
         # Sanitizing the input sometimes has spurious binary data
-        data = data.strip('\0')
-        data = ''.join(filter(lambda i: i.isprintable(), data))
+        data = data.strip("\0")
+        data = "".join(filter(lambda i: i.isprintable(), data))
 
         res = {}
-        for dataitem in data.split(' '):
-            dataparts = dataitem.split('=')
-            if dataparts[0] == 'T':
-                res[MI_TEMPERATURE] = float(dataparts[1])
-            elif dataparts[0] == 'H':
-                res[MI_HUMIDITY] = float(dataparts[1])
+        for dataitem in data.split(" "):
+            dataparts = dataitem.split("=")
+            if dataparts[0] == "T":
+            elif dataparts[0] == "H":
         return res
 
     @staticmethod
     def _format_bytes(raw_data):
         """Prettyprint a byte array."""
         if raw_data is None:
-            return 'None'
-        return ' '.join([format(c, "02x") for c in raw_data]).upper()
+            return "None"
+        return " ".join([format(c, "02x") for c in raw_data]).upper()
 
     def handleNotification(self, handle, raw_data):  # pylint: disable=unused-argument,invalid-name
-        """ gets called by the bluepy backend when using wait_for_notification
-        """
+        """gets called by the bluepy backend when using wait_for_notification"""
         if raw_data is None:
             return
-        data = raw_data.decode("utf-8").strip(' \n\t')
+        data = raw_data.decode("utf-8").strip(" \n\t")
         self._cache = data
         self._check_data()
         if self.cache_available():
             self._last_read = datetime.now()
         else:
             # If a sensor doesn't work, wait 5 minutes before retrying
-            self._last_read = datetime.now() - self._cache_timeout + \
-                timedelta(seconds=300)
+            self._last_read = datetime.now() - self._cache_timeout + timedelta(seconds=300)

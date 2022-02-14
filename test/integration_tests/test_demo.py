@@ -11,6 +11,7 @@ import pytest
 
 class TestDemoPy(unittest.TestCase):
     """End-to-End tests for demo.py"""
+
     # pylint does not understand pytest fixtures, so we have to disable the warning
     # pylint: disable=no-member
 
@@ -24,20 +25,20 @@ class TestDemoPy(unittest.TestCase):
     def test_bluepy_poll(self):
         """Test polling via bluepy."""
         self.assertIsNotNone(self.mac)
-        cmd = './demo.py --backend bluepy poll {}'.format(self.mac)
+        cmd = "./demo.py --backend bluepy poll {}".format(self.mac)
         subprocess.check_call(cmd, shell=True, cwd=self.root_dir)
 
     @pytest.mark.usefixtures("mac")
     def test_gatttool_poll(self):
         """Test polling via gatttool."""
         self.assertIsNotNone(self.mac)
-        cmd = './demo.py --backend gatttool poll {}'.format(self.mac)
+        cmd = "./demo.py --backend gatttool poll {}".format(self.mac)
         subprocess.check_call(cmd, shell=True, cwd=self.root_dir)
 
     def test_list_backends(self):
         """Test the list backends subcommand."""
-        cmd = './demo.py backends'
+        cmd = "./demo.py backends"
         stdout = subprocess.check_output(cmd, shell=True, cwd=self.root_dir)
-        stdout = stdout.decode('utf-8')
-        self.assertIn('BluepyBackend', stdout)
-        self.assertIn('GatttoolBackend', stdout)
+        stdout = stdout.decode("utf-8")
+        self.assertIn("BluepyBackend", stdout)
+        self.assertIn("GatttoolBackend", stdout)

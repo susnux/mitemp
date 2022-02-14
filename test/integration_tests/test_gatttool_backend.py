@@ -1,7 +1,12 @@
 """Test GatttoolBackend with real sensor."""
 import unittest
-from test import (_HANDLE_READ_NAME, _HANDLE_READ_FIRMWARE_VERSION,
-                  _HANDLE_READ_WRITE_SENSOR_DATA, _HANDLE_READ_BATTERY_LEVEL, TEST_MAC)
+from test import (
+    _HANDLE_READ_NAME,
+    _HANDLE_READ_FIRMWARE_VERSION,
+    _HANDLE_READ_WRITE_SENSOR_DATA,
+    _HANDLE_READ_BATTERY_LEVEL,
+    TEST_MAC,
+)
 import pytest
 from btlewrap.base import BluetoothBackendException
 from btlewrap.gatttool import GatttoolBackend
@@ -9,6 +14,7 @@ from btlewrap.gatttool import GatttoolBackend
 
 class TestGatttoolBackend(unittest.TestCase):
     """Test GatttoolBackend with real sensor."""
+
     # pylint does not understand pytest fixtures, so we have to disable the warning
     # pylint: disable=no-member
 
@@ -63,9 +69,10 @@ class TestGatttoolBackend(unittest.TestCase):
             self.backend.connect(TEST_MAC)
             self.backend.read_handle(_HANDLE_READ_NAME)
 
-    def handleNotification(self, handle, raw_data):  # pylint: disable=unused-argument,invalid-name,no-self-use
-        """ gets called by the backend when using wait_for_notification
-        """
+    def handleNotification(
+        self, handle, raw_data
+    ):  # pylint: disable=unused-argument,invalid-name,no-self-use
+        """gets called by the backend when using wait_for_notification"""
         if raw_data is None:
-            raise Exception('no data given')
+            raise Exception("no data given")
         self.assertTrue(len(raw_data) == 14)

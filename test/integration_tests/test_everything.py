@@ -3,12 +3,12 @@ import unittest
 import pytest
 from btlewrap.gatttool import GatttoolBackend
 from btlewrap.bluepy import BluepyBackend
-from mitemp_bt.mitemp_bt_poller import (MiTempBtPoller, MI_TEMPERATURE,
-                                        MI_HUMIDITY, MI_BATTERY)
+from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
 
 class TestEverythingGatt(unittest.TestCase):
     """End to End test cases for MiTemp."""
+
     # pylint does not understand pytest fixtures, so we have to disable the warning
     # pylint: disable=no-member
 

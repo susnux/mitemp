@@ -12,10 +12,10 @@ class MockBackend(AbstractBackend):
     makes sensor to also test against a real sensor.
     """
 
-    def __init__(self, adapter='hci0', address_type: str = 'public'):
+    def __init__(self, adapter="hci0", address_type: str = "public"):
         super().__init__(adapter, address_type)
-        self._version = '00.00.66'
-        self.name = 'MJ_HT_V1'
+        self._version = "00.00.66"
+        self.name = "MJ_HT_V1"
         self.battery_level = 0
         self.temperature = 0.0
         self.humidity = 0.0
@@ -55,7 +55,7 @@ class MockBackend(AbstractBackend):
             return self._read_firmware()
         if handle == _HANDLE_READ_NAME:
             return self._read_name()
-        raise ValueError('handle not implemented in mockup')
+        raise ValueError("handle not implemented in mockup")
 
     def write_handle(self, handle, value):
         """Writing handles just stores the results in a list."""
@@ -151,7 +151,7 @@ class ConnectExceptionBackend(AbstractBackend):
 
     def connect(self, mac):
         """Raise exception when connecting."""
-        raise BluetoothBackendException('always raising exceptions')
+        raise BluetoothBackendException("always raising exceptions")
 
     def disconnect(self):
         """Disconnect always works"""
@@ -176,11 +176,11 @@ class RWExceptionBackend(AbstractBackend):
 
     def read_handle(self, _):
         """Reading always fails."""
-        raise BluetoothBackendException('always raising')
+        raise BluetoothBackendException("always raising")
 
     def read_write(self, _, __):  # pylint: disable=no-self-use
         """Writing always fails."""
-        raise BluetoothBackendException('always raising')
+        raise BluetoothBackendException("always raising")
 
     def wait_for_notification(self, handle, delegate, notification_timeout):
-        raise BluetoothBackendException('always raising')
+        raise BluetoothBackendException("always raising")

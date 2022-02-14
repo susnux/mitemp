@@ -12,11 +12,11 @@ class TestMiTempBtPoller(unittest.TestCase):
     # access to protected members is fine in testing
     # pylint: disable = protected-access
 
-    TEST_MAC = '11:22:33:44:55:66'
+    TEST_MAC = "11:22:33:44:55:66"
 
     def test_format_bytes(self):
         """Test conversion of bytes to string."""
-        self.assertEqual('AA BB 00', MiTempBtPoller._format_bytes([0xAA, 0xBB, 0x00]))
+        self.assertEqual("AA BB 00", MiTempBtPoller._format_bytes([0xAA, 0xBB, 0x00]))
 
     def test_read_battery(self):
         """Test reading the battery level."""
@@ -31,8 +31,8 @@ class TestMiTempBtPoller(unittest.TestCase):
         """Test reading the version number."""
         poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
-        backend.set_version('00.00.11')
-        self.assertEqual('00.00.11', poller.firmware_version())
+        backend.set_version("00.00.11")
+        self.assertEqual("00.00.11", poller.firmware_version())
         self.assertEqual(0, len(backend.written_handles))
 
     def test_read_measurements(self):
@@ -51,7 +51,7 @@ class TestMiTempBtPoller(unittest.TestCase):
         """Check reading of the sensor name."""
         poller = MiTempBtPoller(self.TEST_MAC, MockBackend)
         backend = self._get_backend(poller)
-        backend.name = 'my sensor name'
+        backend.name = "my sensor name"
 
         self.assertEqual(backend.name, poller.name())
 
