@@ -7,8 +7,7 @@ import logging
 import sys
 
 from btlewrap import available_backends, BluepyBackend, GatttoolBackend, PygattBackend
-from mitemp_bt.mitemp_bt_poller import MiTempBtPoller, \
-    MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
+from mitemp_bt import MiTempBtPoller, MI_TEMPERATURE, MI_HUMIDITY, MI_BATTERY
 
 
 def valid_mitemp_mac(mac, pat=re.compile(r"[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}:[0-9A-F]{2}")):
